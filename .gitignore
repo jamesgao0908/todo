@@ -21,3 +21,14 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+#added
+/client/build
+/client/node_modules
+/client/.env.production
+/client/package-lock.json
+
+/server/node_modules
+/server/.env.production
+/server/package-lock.json
