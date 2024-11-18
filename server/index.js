@@ -9,7 +9,7 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cors({
-  origin: [`${config.host}:8000`, `${config.host}`],
+  origin: [`${config.host}:8000`, `${config.host}:3000`, `${config.host}`],
   methods: ['GET', 'POST', 'DELETE', 'PUT'],
   credentials: true,
 }));

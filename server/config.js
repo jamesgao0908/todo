@@ -1,7 +1,6 @@
 const dotenv = require('dotenv');
 const fs = require('fs')
 
-// 动态加载 .env 文件
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 if (fs.existsSync(envFile)) {
   dotenv.config({ path: envFile });
@@ -11,7 +10,6 @@ if (fs.existsSync(envFile)) {
   process.exit(1);
 }
 
-// 导出配置
 const config = {
   port: process.env.PORT,
   db: {
