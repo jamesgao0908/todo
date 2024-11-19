@@ -7,7 +7,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { Button } from '@mui/material';
 import styled from 'styled-components';
-import { service_getTodo, service_addTodo, service_deleteTodo } from '../services/services'
+import { service_getTodo, service_addTodo, service_deleteTodo } from '../services/services';
+// import CircularProgress from '@mui/material/CircularProgress';
 
 const StyledInputDiv = styled.div`
   margin-top: 1rem;
@@ -15,22 +16,23 @@ const StyledInputDiv = styled.div`
   gap: 5px;
 `;
 
-
 const Todo = ()=>{ 
   const [todo, setTodo] = useState('');
   const [todos, setTodos] = useState([]);
 
-  const handleValueInput = async () => {
-    try {
-      const addedTodo = await service_addTodo(todo); 
-      if (addedTodo.data.successfully) {        
-        setTodos((prevTodos) => [...prevTodos, addedTodo]); 
-        setTodo('');
-        setTodos(addedTodo.data.todos)
-      }
-    } catch (error) {
-      console.error('Error adding todo:', error);
-    }
+  const handleValueInput = () => {
+    service_addTodo(todo)
+      .then((res)=>{
+        if (res.data.successfully) {        
+          setTodos((prevTodos) => [...prevTodos, res]); 
+          setTodo('');
+          setTodos(res.data.todos)
+        }
+      })
+      .catch((err)=>{
+        console.error('Error adding todo:', err);
+        throw err;
+      })
   };
 
   const handleValueChange = (e)=>{
@@ -40,32 +42,34 @@ const Todo = ()=>{
     if (e.key === 'Enter')
       handleValueInput()
   }
-  const handleRemoveTodo = async (e)=>{
-    try{
-      const deleteTodo = await service_deleteTodo(e);
-      if (deleteTodo.data.successfully) {        
-        setTodos(deleteTodo.data.todos)
-      }
-    } catch (error) {
-      console.error('Error delete todo:', error);
-    }
-  }
-
-  useEffect(() => {
-    const fetchTodoData = async () => {
-      try {
-        const todoData = await service_getTodo();
-        if (todoData) {
-          setTodos(todoData);
-        } else {
-          console.log('No data received');
+  const handleRemoveTodo = (e)=>{
+    service_deleteTodo(e)
+      .then((deleteTodo)=>{
+        if (deleteTodo.data.successfully) {        
+          setTodos(deleteTodo.data.todos)
         }
-      } catch (err) {
-        console.error('Error fetching todos:', err);
-      }
-    };
-    fetchTodoData();
+      })
+      .catch(error=>{
+        console.error('Error delete todo:', error);
+      })
+
+  }
+  useEffect(() => {
+    service_getTodo()
+      .then((res)=>{
+        if(!!res){
+          setTodos(res);
+        }else(
+          console.log("no data")
+        )
+      })
+      .catch(err=>{
+        console.error(err);
+        throw err
+      })
   }, []);
+
+
 
   return (
     <>
@@ -80,14 +84,16 @@ const Todo = ()=>{
             </TableRow>
           </TableHead>
           <TableBody>
-            {todos.map((result, index) => (
-              <TableRow  key={index}  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell component="th" scope="row">{result.id}</TableCell>
-                <TableCell align="left">{result.value}</TableCell>
-                <TableCell align="right">
-                  <Button variant="contained" color="error" onClick={()=>handleRemoveTodo(result.id)}>Remove</Button>
-                </TableCell>
-              </TableRow>
+            {(todos.length === 0) && (<TableRow> <TableCell colSpan={6}>no records found</TableCell> </TableRow> )}        
+            {
+              todos.map((result, index) => (
+                <TableRow  key={index}  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                  <TableCell component="th" scope="row">{result.id}</TableCell>
+                  <TableCell align="left">{result.value}</TableCell>
+                  <TableCell align="right">
+                    <Button variant="contained" color="error" onClick={()=>handleRemoveTodo(result.id)}>Remove</Button>
+                  </TableCell>
+                </TableRow>
             ))}
           </TableBody>
         </Table>
@@ -96,7 +102,6 @@ const Todo = ()=>{
         <input value={todo} onChange={handleValueChange} onKeyDown={handleInputKeydown}></input>
         <button variant="outlined" onClick={handleValueInput}>Add</button>
       </StyledInputDiv>
-      
     </>
   );
 }

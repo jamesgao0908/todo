@@ -7,7 +7,7 @@ NODE_ENV=development node index.js
 
 上线时
 frontend
-📦打包默认使用 .env.production
+📦打包默认使用 .env.production 
 npm run build
 backend
 跑一次
